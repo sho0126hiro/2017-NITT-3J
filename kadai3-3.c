@@ -21,12 +21,11 @@ int main(){
 	}
 	fread(data,512,1,fp);
 	fclose(fp);
-	//二次元配列に格納
 	expand(data,pattern);
 	printf("Display 1\n\n\n");
 	Display(pattern);
 	normalize(pattern);
-	printf("Display 2\n");
+	printf("Display 2\n\n");
 	Display(pattern);
 	return 0;
 }
