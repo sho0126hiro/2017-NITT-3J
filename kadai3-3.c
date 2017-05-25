@@ -93,7 +93,7 @@ void normalize(char p[64][64]){
 	
 	/*	x0=12  y0= 5
 		x1=50  y1=58
-		w =38  h =53	*/
+		w =39  h =54	*/
 	
 	for(j=0;j<64;j++){
 		for(i=0;i<64;i++){
