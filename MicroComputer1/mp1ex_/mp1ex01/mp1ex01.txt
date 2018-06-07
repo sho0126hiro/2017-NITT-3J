@@ -1,0 +1,96 @@
+/***  mp1ex01.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+    「bitoperation.c」で演算結果は２進法表現だけであるが，同じ変数について2進法表現と10進法表現が
+    同時に見えるように改造しなさい。
+    負の整数を右シフトした時（例えばxの値を-1024などにしてz=x>>3;），どうなるか試して考察しなさい。
+    また，unsigned short int u;を導入するように改造し，uに無理やり-1024などを代入してz=u>>3にした時，
+    どうなるか試して考察しなさい。
+    実行結果を貼り付け，その説明をもとに考察しなさい。
+    (mp1ex01.txt)
+    
+2．使用したプログラム
+    
+    #include <3048fone.h>
+    #include "h8_3048fone.h"
+
+    main()
+    {
+        short int x,y,z,a;
+        unsigned short int u;
+        initSCI1(); /*シリアル通信ユニット　SCI-ch1の初期化*/
+        SCI1_printf("Hello. How are you?\n"); /*printfと同様*/
+        SCI1_printf("Let's make an bit operation\n");
+        /*a=-1024;*/
+        /*u=-1024;*/
+        while (1) {
+            x=SCI1_getInt("the first  number = ");
+            y=SCI1_getInt("the second number = ");
+            a=SCI1_getInt("a = ");
+            u=SCI1_getInt("u = ");
+            z=x&y;
+            SCI1_printf("x=%b [%d] y=%b [%d] z=x&y=%b [%d]\n",x,x,y,y,z);
+            z=x|y;
+            SCI1_printf("x=%b [%d] y=%b [%d] z=x|y=%b [%d]\n",x,x,y,y,z,z);
+            z=x^y;
+            SCI1_printf("x=%b [%d] y=%b [%d] z=x^y=%b [%d]\n",x,x,y,y,z,z);
+            z=x>>3;
+            SCI1_printf("x=%b [%d] z=x>>3=%b [%d]\n",x,x,z,z);
+            z=y<<3;
+            SCI1_printf("y=%b [%d] z=y<<3=%b [%d]\n",y,y,z,z);
+            
+            SCI1_printf("\n以下課題用\n");
+            z=a>>3;
+            SCI1_printf("a=%b [%d] z=a>>3=%b [%d]\n",a,a,z,z);
+            z=u>>3;
+            SCI1_printf("a=%b [%d] z=a>>3=%b [%d]\n",u,u,z,z);
+        }
+    }
+    
+    /*実行結果**
+        
+    Hello. How are you?
+    Let's make an bit operation
+    the first  number = 12
+    the second number = 65
+    a = -1024
+    u = -1024
+    x=1100 [12] y=1000001 [65] z=x&y=0 [0]
+    x=1100 [12] y=1000001 [65] z=x|y=1001101 [77]
+    x=1100 [12] y=1000001 [65] z=x^y=1001101 [77]
+    x=1100 [12] z=x>>3=1 [1]
+    y=1000001 [65] z=y<<3=1000001000 [520]
+
+    以下課題用
+    a=1111110000000000 [-1024] z=a>>3=1111111110000000 [-128]
+    a=1111110000000000 [-1024] z=a>>3=1111110000000 [8064]
+
+    */
+
+3．考察．
+    実行結果より，unsigned short int と short intの違いについて以下のことを理解した．
+    
+    1．unsignedの有無で左シフトの実行結果は変化する
+    2．unsignedについて
+        unsignedがある場合，左シフトをしたときに，一番上の位には1が代入される．
+        逆に，unsignedがない場合，左シフトをしたときに一番上の位には0が代入される．
+        
+    間違えと訂正について
+    
+    unsigned short int u; 
+    をプログラムの第10行目（SCI1_printf("Let's make an bit operation\n");）
+    の下に記入したが，UNCLEATEDと，コンパイルエラーが出た．
+    
+    プログラムの第7行目（short int x,y,z,a;）
+    の下に記入をすると，正しく実行できた．
+    
+    コメントするときに「//」を文頭に置いていたが，エラーが出た．
+    /*　　*/で囲む必要がある
+
+4．まとめ
+    この課題はunsignedの有無によるシフト演算の結果の違いを理解することに意味があると考える．
+    左シフトした時の一番上の位の代入する数の違いを理解した．
+    また，細かいところ，自分の小さな癖（コメントアウトに//を使うこと）がコンパイルエラーに繋がることも理解した．
+    これからの課題で常に細かいところまで気を使ってプログラムを作成していきたい．
+
