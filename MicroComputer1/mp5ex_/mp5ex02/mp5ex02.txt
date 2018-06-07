@@ -1,0 +1,78 @@
+/***  mp5ex02.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	プッシュスイッチの0のみがONの時，0.5秒周期で２つのLED を同時点滅，
+	プッシュスイッチの1のみがONの時，1秒周期で２つのLEDを交互点滅，
+	プッシュスイッチの2のみがONの時，２秒周期で２つのLEDを交互点滅
+	それ以外の状態ではすべて消灯
+	実行の様子を観察し，その様子を実行結果として報告しなさい。
+	
+2．使用したプログラム
+
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	void waitmsec(int msec)
+	{
+		int i,j;
+		for (i=0;i<msec;i++) {
+			for (j=0;j<4190;j++);    /*4190は実測によって求めた値 25MHz駆動*/
+		}
+	}
+
+	main()
+	{
+		initLed();
+		initPushSW();
+		while(1) {
+			if (checkPushSW(0)==1 && checkPushSW(1)==0 && checkPushSW(2)==0 && checkPushSW(3)==0) { /*PushSWの0のみがONの時*/
+				turnOnLed(0);
+				turnOnLed(1);
+				waitmsec(250);
+				turnOffLed(0);
+				turnOffLed(1);
+				waitmsec(250);
+			}
+			if (checkPushSW(1)==1 && checkPushSW(0)==0 && checkPushSW(2)==0 && checkPushSW(3)==0) { /*PushSWの1のみがONの時*/
+				turnOnLed(0);
+				turnOffLed(1);
+				waitmsec(500);
+				turnOffLed(0);
+				turnOnLed(1);
+				waitmsec(500);
+			}
+			if (checkPushSW(2)==1 && checkPushSW(0)==0 && checkPushSW(1)==0 && checkPushSW(3)==0) { /*PushSWの2がONの時*/
+				turnOnLed(0);
+				turnOffLed(1);
+				waitmsec(1000);
+				turnOffLed(0);
+				turnOnLed(1);
+				waitmsec(1000);
+			}
+			turnOffLed(0);
+			turnOffLed(1);
+		}
+	}
+3．実行結果
+
+	プッシュスイッチの0のみがONの時
+	周期:0.5s デューティー比50% ２つのLED を同時点滅
+	
+	プッシュスイッチの1のみがONの時
+	周期:1s デューティー比50% ２つのLED を同時点滅
+	
+	プッシュスイッチの2のみがONの時
+	周期:2s デューティー比50% ２つのLED を同時点滅
+	
+	それ以外の状態
+	2つのLEDは消灯
+	
+4．考察
+	checkPushSW(n)を用いることでn番目のPushSWの状態を取得することができる．
+	前回の課題からPushSWの状態はポートの電圧(High/Low)を見ると,プログラムの0/1と逆だが，
+	内部で反転させている．（正確には4ビットのシフトもしている）
+
+5．まとめ
+	checkPushSW()の使い方と，それを用いたLED点灯プログラムを作成することができた．
+	

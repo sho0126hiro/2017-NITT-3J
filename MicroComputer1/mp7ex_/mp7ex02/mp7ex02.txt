@@ -1,0 +1,124 @@
+/***  mp7ex02.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	マイコンのプログラム実行開始後，４つのプッシュスイッチがそれぞれ 何回押されたかを
+　　表示するプログラムを作成しなさい。
+　　このプログラムは電源がOFFされるまでカウントを続け，絶えず最新のカウントを表示し続
+　　けるものとする。
+　　通信して文字を表示するのはマイコンにとっては遅い作業である。（1msec間に3文字しか送れない）
+　　そこで，SCI1_printはmainがわで行い，スイッチの状態観測は1/1000秒間隔の割り込み関数内で
+　　行うものとする。カウント値はグローバル変数に格納すると良い。
+		
+2．使用したプログラム
+
+	#include <3048fone.h>69-+9
+	#include "h8_3048fone.h"
+
+	volatile int sw0=0,sw1=0,sw2=0,sw3=0,r=0;
+	volatile int request=0; /*割り込みルーチンからの表示要求*/
+
+	main()
+	{
+	    int menu;
+	    initSCI1();
+	    initPushSW();
+	    initTimer1Int(1000);
+	    E_INT();
+	    startTimer1();
+	    while (1) {
+	        if(request==1){
+	            SCI1_printf("sw0:%d,sw1:%d,sw2:%d,sw3:%d \n",sw0,sw1,sw2,sw3);
+	            request=0;
+	        }
+	    }
+	}
+
+	#pragma asm
+	    .SECTION    MYVEC, DATA, LOCATE=H'000070
+	    .ORG        H'000070  ;IMIA1
+	    .DATA.L     _TimerIntFunc
+	    .SECTION    P,CODE,ALIGN=2 ;これを忘れてはいけない
+	#pragma endasm
+
+	#pragma interrupt (TimerIntFunc)
+	void TimerIntFunc() /*タイマ割り込みルーチン*/
+	{
+	    int sw;
+	    static int status=0;
+	    const int Nantichatter=10;
+	    static int statuscnt=0;
+	    clearTimer1Flag();
+	    sw=getPushSW();
+	    if (status==0) {
+	        if ((sw&1)==1) {
+	            status=1;
+	            sw0++;
+	            request=1;
+	        }
+	        if ((sw&2)==2) {
+	            status=1;
+	            sw1++;
+	            request=1;
+	        }
+	        if ((sw&4)==4) {
+	            status=1;
+	            sw2++;
+	            request=1;
+	        }
+	        if ((sw&8)==8) {
+	            status=1;
+	            sw3++;
+	            request=1;
+	        }
+	    } else { /*status==1*/
+	        if ((sw&1)==1 || (sw&2)==2 || (sw&4)==4 || (sw&8)==8) {
+	            statuscnt=0;
+	        } else {
+	            statuscnt++;
+	            if (Nantichatter<statuscnt) {
+	                status=0;
+	            }
+	        }
+	    }
+	}
+
+3．実行結果
+	
+	プッシュスイッチを押すと押した回数がカウントされ，表示される．
+	すべてのボタンを1回ずつ押したときこのように表示された
+	sw0:1,sw1:1,sw2:1,sw3:1
+	また，一度押すと更新される
+4．考察
+	
+	割り込み周期は1000μsec=1msecである．
+		    if (status==0) {
+	        if ((sw&1)==1) {
+	            status=1;
+	            sw0++;
+	            request=1;
+	        }
+	        if ((sw&2)==2) {
+	            status=1;
+	            sw1++;
+	            request=1;
+	        }
+	        if ((sw&4)==4) {
+	            status=1;
+	            sw2++;
+	            request=1;
+	        }
+	        if ((sw&8)==8) {
+	            status=1;
+	            sw3++;
+	            request=1;
+	        }
+	        
+	のgetPushSW();で取得したスイッチの状態と1,2,4,8とアンドすることで
+	各ビットの状態がわかる．
+	また，requestの値を更新することでprintするかしないかを判断している．
+	
+
+5．まとめ
+	割り込み関数の応用プログラムを作ることができた．
+	

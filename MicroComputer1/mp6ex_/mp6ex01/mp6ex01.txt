@@ -1,0 +1,79 @@
+/***  mp6ex01.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	int1st.cは2秒周期のLED点滅であった。
+	int1st.cを元にして割り込み周期を変更せずに，１秒周期のLED点滅を行なうプログラムに変更しなさい。
+	initTimer1Int(10000);は変更しない。
+	実行の様子を観察し，その様子を実行結果として報告しなさい。
+	ヒント：間引き（割り込み関数が起動しても何回かに一回しかLEDを操作しない）間隔を変更する。
+		initTimer1Int()関数の定義はh8_3048fone.hにある。
+		initTimer1Int()，startTimer1()はμsec単位の割り込み間隔動作，最長でも約29msecのタイマ割り込みしかできない。
+	
+2．使用したプログラム
+
+	/**********************************************************
+	時間割り込みによってLEDのON-OFFを行う
+	**********************************************************/
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	main()
+	{
+		initLed();
+		initTimer1Int(10000); /*時間割り込み10000μsec=10msec ITUch1使用*/
+		E_INT();        /*CPU割り込み許可*/
+		startTimer1();  /*時間割り込みタイマスタートch1*/
+		while(1);       /*なにもしないループ*/
+	}
+
+	#pragma asm
+	    .SECTION    MYVEC, DATA, LOCATE=H'000070
+	    .ORG        H'000070  ;IMIA1
+	    .DATA.L     _TimerIntFunc
+	    .SECTION    P,CODE,ALIGN=2 ;これを忘れてはいけない
+	#pragma endasm
+
+	#pragma interrupt (TimerIntFunc)
+	void TimerIntFunc() /*タイマ割り込みルーチン*/
+	{
+		static int tick=0;
+		static int count=0;
+		clearTimer1Flag();  /*タイマステータスフラグのクリア 忘れないこと*/
+		count++;
+		if (count==50) {
+			count=0;
+			if (tick==1) {
+				turnOnLed(0);
+				turnOffLed(1);
+			} else {
+				turnOffLed(0);
+				turnOnLed(1);
+			}
+			tick=1-tick;
+		}
+		
+3．実行結果
+	
+	LED0とLED1が交互に点滅した．
+	周期1秒デューティー比50%
+	
+4．考察
+	
+	割り込み周期は10000μsec=10msecであるが，
+	LEDの点滅周期を1秒にするためには，呼び出し回数が50回に一度，
+	LEDの点灯を切り替えればよい．
+	（50*10msec=500msec)
+	よって上のプログラムで動作する．
+	
+	また，initTimer1Intの中身は20971以下でなければならない。
+	（20.971msecまで設定可能）
+	20.971msec以上の周期が必要な場合，必ず割り込み関数内の処理を変更しなければならない．
+	
+5．まとめ
+	割り込関数の概念と使い方を理解した．
+	また，割り込み間隔の変更（main）と
+	割り込み関数内の処理を変更することによって
+	周期の変更ができることを理解した．
+	
+

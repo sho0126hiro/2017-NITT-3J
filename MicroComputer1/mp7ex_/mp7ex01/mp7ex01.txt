@@ -1,0 +1,151 @@
+/***  mp7ex01.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	sciout.cを実行してキーボードから1を入力したところ次のような画面になった。
+	止まっているように見えるが，マイコンの内部ではプログラムが動作している。
+	プログラムがどのように動いているのか，画面上はどうして止まっているようにみえるのか考察において説明しなさい。
+	キーワード「SCI1_chkgetChar()」「SCI1_getChar()」「sw!=previous」の3つを，必ず使いなさい。
+	
+	Hello. How are you?
+	***************menu**********
+	1:   get 8-bit SW and print
+	2:   get Push SW and print
+	3:   get integer from SCI1 and print
+	1
+	Printing 8-bitSW status...
+	Change 8-bitSW and new status will appear.
+	If any key on the keyboard, this test will quit.
+	8-bitSW status=  0[00000000]
+	
+2．プログラム
+
+	/**********************************************************
+	SCI1へ出力，WINDOWSのHyperTerminalなどで受信できる。
+	ただし，設定は　38400baud, Async, 8bit , NoParity, stop1
+	**********************************************************/
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	void func1(void)
+	{
+	    unsigned char sw,previous;
+	    SCI1_printf("Printing 8-bitSW status...\n");
+	    SCI1_printf("Change 8-bitSW and new status will appear.\n");
+	    SCI1_printf("If any key on the keyboard, this test will quit.\n");
+	    previous=sw=get8BitSW();
+	    SCI1_printf("8-bitSW status= %2x[%08b]\n",sw,sw);
+	    do {
+	        sw=get8BitSW();
+	        if (sw!=previous) {
+	            SCI1_printf("8-bitSW status= %2x[%08b]\n",sw,sw);
+	            previous=sw;
+	        }
+	    } while (SCI1_chkgetChar()<0);
+	}
+
+	void func2(void)
+	{
+	    unsigned char sw,previous;
+	    SCI1_printf("Printing PushSW status...\n");
+	    SCI1_printf("Change PushSW and new status will appear.\n");
+	    SCI1_printf("If any key on the keyboard, this test will quit.\n");
+	    previous=sw=getPushSW();
+	    SCI1_printf("PushSW status= %2x[%08b]\n",sw,sw);
+	    do {
+	        sw=getPushSW();
+	        if (sw!=previous) {
+	            SCI1_printf("PushSW status= %2x[%08b]\n",sw,sw);
+	            previous=sw;
+	        }
+	    } while (SCI1_chkgetChar()<0);
+	}
+
+	void func3(void)
+	{
+	    short int x;
+	    long int y;
+	    x=SCI1_getInt("Key in a decimal number >>>");
+	    SCI1_printf("The number you keyed in is %d %x\n",x,x);
+	    x=SCI1_getInt("Key in a hexdecimal number (ex. 0x23ff) >>>");
+	    SCI1_printf("The number you keyed in is %d %x\n",x,x);
+	    y=SCI1_getInt4("Key in a decimal big number (ex. 12345678)>>>");
+	    SCI1_printf("The number you keyed in is %ld %lx\n",y,y);
+	    y=SCI1_getInt4("Key in a hexdecimal big number (ex. 0x23ff0000) >>>");
+	    SCI1_printf("The number you keyed in is %ld %lx\n",y,y);
+	}
+
+	main()
+	{
+	    int menu;
+	    initSCI1(); /*SCI-ch1の初期化*/
+	    initPushSW(); /*押しボタンスイッチの初期化*/
+	    init8BitSW(); /*8ビットスイッチの初期化*/
+	    SCI1_printf("Hello. How are you?\n");
+	    while (1) {
+	        SCI1_printf("***************menu**********\n");
+	        SCI1_printf("1:   get 8-bit SW and print \n");
+	        SCI1_printf("2:   get Push SW and print \n");
+	        SCI1_printf("3:   get integer from SCI1 and print \n");
+	        do {
+	            menu=SCI1_getChar(); /*menuには'1','2','3'が入るはず*/
+	        } while (menu<'1'||'3'<menu);
+	        SCI1_printf("\n");
+	        switch (menu) {
+	        case '1':
+	            func1();
+	            break;
+	        case '2':
+	            func2();
+	            break;
+	        case '3':
+	            func3();
+	            break;
+	        default:
+	            break;
+	        }
+	    }
+	}
+
+3.考察
+	動作内容
+	
+	main:
+			Hello. How are you?
+			***************menu**********
+			1:   get 8-bit SW and print
+			2:   get Push SW and print
+			3:   get integer from SCI1 and print
+			と表示した後，SCI1_getChar()により，入力を待つ．
+			実行者は「1」と入力したため，func1()が呼び出される．
+	
+	func1:
+			Printing 8-bitSW status...
+			Change 8-bitSW and new status will appear.
+			If any key on the keyboard, this test will quit.
+			と表示する．
+			
+			previous=sw=get8BitSW();によって8bitスイッチの状態を取得する
+			ここではすべて0担っているのでpreviousとswには00000000が代入される．
+			SCI1_printf("8-bitSW status= %2x[%08b]\n",sw,sw);
+			表示内容は8-bitSW status=  0[00000000]
+			
+			do-while文：(SCI1_chkgetChar()によってキーボードからの入力があればループを抜ける）
+				8bitSWの状態を読み込む．
+				ここではまったくスイッチの状態を実行者が変化させていないため，
+				
+				***************************************************
+				しかし，スイッチの状態を変えると
+				if(sw!=previous)の条件が真になるので
+				SCI1_printf("PushSW status= %2x[%08b]\n",sw,sw);
+				より，変更後のスイッチの状態が表示される．
+				また，キーボードの入力がある
+				（そのときSCI1_chkgetChar()!=-1)と
+				ループを抜けるため，menuに戻る．
+				****************************************************
+
+3．まとめ
+	
+	short int SCI1_getChar()とshort int SCI1_chkgetChar()を理解し，プログラムの動作を
+	読み取ることができた．
+	

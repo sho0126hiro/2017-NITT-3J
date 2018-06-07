@@ -1,0 +1,90 @@
+/***  mp4ex01.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	8bitSWの1がOFFの時，0.5秒周期で２つのLEDを同時点滅，
+	8bitSWの1がONの時，1秒周期で２つのLEDを同時点滅
+	実行の様子を観察し，その様子を実行結果として報告しなさい。
+	
+2．使用したプログラム
+
+	/**********************************************************
+	マザーボードの8ビットスイッチによってLEDのON-OFFを行う
+	**********************************************************/
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	void waitmsec(int msec)
+	/*mesc間なにもしない時間稼ぎ関数*/
+	{
+		int i,j;
+		for (i=0;i<msec;i++) {
+			for (j=0;j<4190;j++);    /*4190は実測によって求めた値 25MHz駆動*/
+		}
+	}
+
+	main()
+	{
+		initLed();
+		P2.DDR=0;
+		P2.PCR.BYTE=0xff;
+		while(1) {
+			if(check8BitSW(1)) { /*8bitSWの1がONの時*/
+				while(1){
+					turnOnLed(0);
+					turnOnLed(1);
+					waitmsec(500);
+					turnOffLed(0);
+					turnOffLed(1);
+					waitmsec(500);
+					if(!check8BitSW(1))break;
+				}
+			} else { /*8bitSWの1がOFFの時*/
+				while(1){
+					turnOnLed(0);
+					turnOnLed(1);
+					waitmsec(250);
+					turnOffLed(0);
+					turnOffLed(1);
+					waitmsec(250);
+					if(check8BitSW(1))break;
+				}
+			}
+		}
+	}
+
+
+3．実行結果
+	
+	8bitSWの1がOFFの時，0.5秒周期で２つのLEDを同時点滅
+	8bitSWの1がONの時，1秒周期で２つのLEDを同時点滅
+	
+4．考察
+	if(check8BitSW(1))の中身にwhileが書かれているが，
+	後々whileループがいらないことに気づいた．
+	
+	while(1) {
+		if(check8BitSW(1)) { /*8bitSWの1がONの時*/
+			turnOnLed(0);
+			turnOnLed(1);
+			waitmsec(500);
+			turnOffLed(0);
+			turnOffLed(1);
+			waitmsec(500);
+		} else { /*8bitSWの1がOFFの時*/
+			turnOnLed(0);
+			turnOnLed(1);
+			waitmsec(250);
+			turnOffLed(0);
+			turnOffLed(1);
+			waitmsec(250);
+		}
+	}
+	
+	上のように書いても同じ動作をするだろう．
+	使用したプログラムよりも短く，breakがないためプログラムの作成が容易であるため，
+	次回からはこのような書き方でプログラムを作成しようと思う．
+	
+5．まとめ
+	8bitSWでLEDを動作する方法が分かった．
+	また，8bitSWのポート番号なども理解した．

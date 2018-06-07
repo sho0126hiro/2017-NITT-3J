@@ -1,0 +1,70 @@
+/***  mp5ex01.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	５．３のプログラムを参考に，4つのpushSWの状態を取得してターミナル画面
+	に表示するプログラムを作成しなさい。
+	checkPushSW()
+	は使わずに
+	sw1=P4.DR.BYTE;
+	sw2=getPushSW();
+	を使いなさい。
+	実行の様子を観察し，その様子を実行結果として報告しなさい。
+	
+2．使用したプログラム
+	/**********************************************************
+	プッシュスイッチによってLEDのON-OFFを行う
+	**********************************************************/
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	main()
+	{
+		unsigned char sw1,sw2;
+		initLed();
+		initSCI1();
+		initPushSW();
+		while(1) {
+			sw1=P4.DR.BYTE;
+			sw2=getPushSW();
+			SCI1_printf("P4.DR.BYTE=%08b getPushSW()=%08b\n",sw1,sw2);
+		}
+	}
+
+
+3．実行結果
+
+	SW:PushSW
+	押していないとき : 0
+	押しているとき   : 1
+		
+	SW4 SW3 SW2 SW1           ターミナル画面の表示          
+	 0   0   0   0  P4.DR.BYTE=11111111 getPushSW()=00000000
+	 0   0   0   1  P4.DR.BYTE=11101111 getPushSW()=00000001
+	 0   0   1   0  P4.DR.BYTE=11011111 getPushSW()=00000010
+	 0   0   1   1  P4.DR.BYTE=11001111 getPushSW()=00000011
+	 0   1   0   0  P4.DR.BYTE=10111111 getPushSW()=00000100
+	 0   1   0   1  P4.DR.BYTE=10101111 getPushSW()=00000101
+	 0   1   1   0  P4.DR.BYTE=10011111 getPushSW()=00000110
+	 0   1   1   1  P4.DR.BYTE=10001111 getPushSW()=00000111
+	 1   0   0   0  P4.DR.BYTE=01111111 getPushSW()=00001000
+	 1   0   0   1  P4.DR.BYTE=01101111 getPushSW()=00001001
+	 1   0   1   0  P4.DR.BYTE=01011111 getPushSW()=00001010
+	 1   0   1   1  P4.DR.BYTE=01001111 getPushSW()=00001011
+	 1   1   0   0  P4.DR.BYTE=00111111 getPushSW()=00001100
+	 1   1   0   1  P4.DR.BYTE=00101111 getPushSW()=00001101
+	 1   1   1   0  P4.DR.BYTE=00011111 getPushSW()=00001110
+	 1   1   1   1  P4.DR.BYTE=00001111 getPushSW()=00001111
+
+4．考察
+	P4.DR.BYTEで取得した状態は電圧の状態(High:1/Low:0)であり，
+	getPushSW で取得した状態はスイッチのON/OFFの状態を表している．
+	
+	また，P4.DR.BYTEで取得したデータを反転し，4ビット右にシフトしている．
+	実験結果に加えてh8_3048fone.hの中身を読んで理解した．
+	
+	L.847/h8_3048fone.h
+	#define getPushSW() ((((unsigned char)(~P4.DR.BYTE))&0xf0)>>4)
+
+5．まとめ
+	プッシュスイッチの情報取得方法を理解し，動作の中身も理解した．
