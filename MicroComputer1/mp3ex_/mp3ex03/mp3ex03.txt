@@ -1,0 +1,77 @@
+/***  mp3ex03.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	0.5秒ごとに点灯状態が変化し，次の点滅パターンを繰り返すプログラム
+	左側2回点滅→右側2回点滅→左側1回点滅→右側1回点滅
+	実行の様子を観察し，その様子を実行結果として報告しなさい。
+	
+2．使用したプログラム
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	void waitmsec(int msec)
+	{
+		int i,j;
+		for (i=0;i<msec;i++) {
+			for (j=0;j<4190;j++);    /*4190は実測によって求めた値 25MHz駆動*/
+		}
+	}
+
+	main()
+	{
+		int i;
+		initLed();
+
+		while(1) {
+			for(i=0;i<2;i++){
+				turnOnLed(1); /*LED1のON*/
+				waitmsec(500);
+				turnOffLed(1); /*LED1のOFF*/
+				waitmsec(500);
+			}
+			for(i=0;i<2;i++){
+				turnOnLed(0); /*LED0のOFF*/
+				waitmsec(500);
+				turnOffLed(0); /*LED1のON*/
+				waitmsec(500);
+			}
+			turnOnLed(1);
+			waitmsec(500);
+			turnOffLed(1);
+			waitmsec(500);
+			turnOnLed(0);
+			waitmsec(500);
+			turnOffLed(0);
+			waitmsec(500);
+		}
+	}
+
+3．実行結果
+
+	LED1が2回点滅(0.5秒ごと)
+	(左側)
+	LED0が2回点滅(0.5秒ごと)
+	(右側）
+	LED1が1回点滅(0.5秒ごと)
+	(左側)
+	LED0が1回点滅(0.5秒ごと)
+	(右側）
+	
+	以下，上の動作を繰り返す．
+
+4．考察
+	点滅は0.5秒ごとのため，waitsec()の中身は500にすればよい
+
+	点滅の動作には，
+	点灯0.5秒待機
+	消灯0.5秒待機
+	の動作を記入しないとうまく動作しない．
+	消灯0.5秒については，自分は最初記入していなかったため，
+	点滅パターンの間隔が早くなった．
+
+5．まとめ
+	mp3の応用課題であり，
+	turnOnLED()及びturnOffLED()の使い方を覚えた．
+	また，waitsecの使用方法もしっかりと理解した．
+

@@ -1,0 +1,112 @@
+                                        H SERIES LINKAGE EDITOR Ver. 5.3B
+
+
+LINK COMMAND LINE
+
+
+LNK -subcommand=tmp8523.sub 
+
+
+
+LINK SUBCOMMANDS
+
+
+INPUT C:\Progra~1\h8v2\lib\start3048.obj  primitiveLED 
+LIB C:\Progra~1\h8v2\lib\c38ha.lib 
+OUTPUT primitiveLED 
+PRINT primitiveLED 
+ROM (D,X)
+
+;ROMエリア＝00000-1ffff 0x20000:128kbytes
+;RAMエリア＝fef10-fff0f  0x1000:  4kbytes
+START P,C,D(100),X,B(0FFEF10)
+EXIT
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     1
+
+                                        ***     LINKAGE EDITOR LINK MAP LIST      ***
+
+
+SECTION   NAME                       START      -      END         LENGTH
+                                                              UNIT NAME                          MODULE NAME
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+VEC                               H'00000000    -    H'00000003   H'00000004
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00000000    -    H'00000003   H'00000004
+
+
+ATTRIBUTE  :   CODE  NOSHR
+
+P                                 H'00000100    -    H'0000015F   H'00000060
+                                                              start3048                          start3048                       
+                                  H'00000160    -    H'00000197   H'00000038
+                                                              primitiveLED                       primitiveLED                    
+                                  H'00000198    -    H'000001BF   H'00000028
+                                                              spregsv3                           spregsv3                        
+                                  H'000001C0    -    H'000001D5   H'00000016
+                                                              sprgld23                           sprgld23                        
+
+* TOTAL ADDRESS *                 H'00000100    -    H'000001D5   H'000000D6
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+C                                 H'000001D6    -    H'000001E9   H'00000014
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'000001D6    -    H'000001E9   H'00000014
+
+
+ATTRIBUTE  :   DATA  NOSHR ROM
+
+D                                 H'000001EA    -    H'000001EA   H'00000000
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'000001EA    -    H'000001EA   H'00000000
+
+
+ATTRIBUTE  :   DATA  NOSHR RAM
+
+X                                 H'00FFEF10    -    H'00FFEF10   H'00000000
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00FFEF10    -    H'00FFEF10   H'00000000
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     2
+
+                                        ***     LINKAGE EDITOR LINK MAP LIST      ***
+
+
+SECTION   NAME                       START      -      END         LENGTH
+                                                              UNIT NAME                          MODULE NAME
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+B                                 H'00FFEF10    -    H'00FFEF10   H'00000000
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00FFEF10    -    H'00FFEF10   H'00000000
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     1
+
+                                      ***  LINKAGE EDITOR EXTERNALLY DEFINED SYMBOLS LIST  ***
+
+                                 SYMBOL  NAME                         ADDR                 TYPE
+
+                                  $sp_regsv$3                          H'00000198           DAT
+                                  $spregld2$3                          H'000001C0           DAT
+                                  _D_INT                               H'0000015C           DAT
+                                  _E_INT                               H'00000158           DAT
+                                  _main                                H'00000174           ENT
+                                  _waitmsec                            H'00000160           ENT

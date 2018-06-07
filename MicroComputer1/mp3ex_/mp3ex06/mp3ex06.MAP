@@ -1,0 +1,117 @@
+                                        H SERIES LINKAGE EDITOR Ver. 5.3B
+
+
+LINK COMMAND LINE
+
+
+LNK -subcommand=tmp8523.sub 
+
+
+
+LINK SUBCOMMANDS
+
+
+INPUT C:\Progra~1\h8v2\lib\start3048.obj  mp3ex06 
+LIB C:\Progra~1\h8v2\lib\c38ha.lib 
+OUTPUT mp3ex06 
+PRINT mp3ex06 
+ROM (D,X)
+
+;ROMエリア＝00000-1ffff 0x20000:128kbytes
+;RAMエリア＝fef10-fff0f  0x1000:  4kbytes
+START P,C,D(100),X,B(0FFEF10)
+EXIT
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     1
+
+                                        ***     LINKAGE EDITOR LINK MAP LIST      ***
+
+
+SECTION   NAME                       START      -      END         LENGTH
+                                                              UNIT NAME                          MODULE NAME
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+VEC                               H'00000000    -    H'00000003   H'00000004
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00000000    -    H'00000003   H'00000004
+
+
+ATTRIBUTE  :   CODE  NOSHR
+
+P                                 H'00000100    -    H'0000015F   H'00000060
+                                                              start3048                          start3048                       
+                                  H'00000160    -    H'000001FB   H'0000009C
+                                                              mp3ex06                            mp3ex06                         
+                                  H'000001FC    -    H'00000223   H'00000028
+                                                              spregsv3                           spregsv3                        
+                                  H'00000224    -    H'00000239   H'00000016
+                                                              sprgld23                           sprgld23                        
+
+* TOTAL ADDRESS *                 H'00000100    -    H'00000239   H'0000013A
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+C                                 H'0000023A    -    H'0000024D   H'00000014
+                                                              start3048                          start3048                       
+                                  H'0000024E    -    H'00000255   H'00000008
+                                                              mp3ex06                            mp3ex06                         
+
+* TOTAL ADDRESS *                 H'0000023A    -    H'00000255   H'0000001C
+
+
+ATTRIBUTE  :   DATA  NOSHR ROM
+
+D                                 H'00000256    -    H'00000256   H'00000000
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00000256    -    H'00000256   H'00000000
+
+
+ATTRIBUTE  :   DATA  NOSHR RAM
+
+X                                 H'00FFEF10    -    H'00FFEF10   H'00000000
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00FFEF10    -    H'00FFEF10   H'00000000
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     2
+
+                                        ***     LINKAGE EDITOR LINK MAP LIST      ***
+
+
+SECTION   NAME                       START      -      END         LENGTH
+                                                              UNIT NAME                          MODULE NAME
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+B                                 H'00FFEF10    -    H'00FFEF10   H'00000000
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00FFEF10    -    H'00FFEF10   H'00000000
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     1
+
+                                      ***  LINKAGE EDITOR EXTERNALLY DEFINED SYMBOLS LIST  ***
+
+                                 SYMBOL  NAME                         ADDR                 TYPE
+
+                                  $sp_regsv$3                          H'000001FC           DAT
+                                  $spregld2$3                          H'00000224           DAT
+                                  _D_INT                               H'0000015C           DAT
+                                  _E_INT                               H'00000158           DAT
+                                  _initLed_P1                          H'00000174           ENT
+                                  _main                                H'000001B2           ENT
+                                  _turnOffLed_P1                       H'00000196           ENT
+                                  _turnOnLed_P1                        H'0000017A           ENT
+                                  _waitmsec                            H'00000160           ENT

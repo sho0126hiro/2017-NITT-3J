@@ -1,0 +1,109 @@
+/***  mp3ex06.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	ポート1のbit0,bit1,bit2,bit3に保護抵抗付きのLEDが接続されているとする。
+	次のような設計仕様の場合のLED初期化関数initLed_P1()と turnOnLed_P1()，turnOffLed_P1()を作りなさい。
+	void initLed_P1(void)　LED初期化関数
+	void turnOnLed_P1(int number) LEDを点灯させる関数。
+	  ただし，引数は0,1,2,3を取り，LED0,1,2,3をそれぞれ個別に点灯させる。
+	void turnOffLed_P1(int number) LEDを消灯させる関数。
+	  ただし，引数は0,1,2,3を取り，LED0,1,2,3をそれぞれ個別に消灯させる。
+	mainプログラムではこれらの関数を用いて，４つのLEDについて2秒ごとに0,1,2,3番LEDが順に点灯し消灯する
+	ようにプログラム全体を作りなさい。LEDの点滅は見えないけれど，ポート1のbit0,bit1,bit2,bit3がどこのピン
+	に見えるか調べて，テスタにてチェックしなさい。
+	（ヒントP1-B0からP1-B3をこのページ後ろの「参考１ H8ピン配置」で探す）
+	実行の様子を観察し，その様子を実行結果として報告しなさい。
+	
+2．使用したプログラム
+	#include <3048fone.h>
+
+	void waitmsec(int msec)
+	{
+		int i,j;
+		for (i=0;i<msec;i++) {
+			for (j=0;j<4190;j++);    /*4190は実測によって求めた値 25MHz駆動*/
+		}
+	}
+
+	/* ------------------------------------------------- */
+	/* LED INITIALIZATION */
+	/* ------------------------------------------------- */
+	/**********************************************************
+	LED 0:P1-0
+	LED 1:P1-1
+	LED 2:P1-2
+	LED 3:P1-3
+	下位4ビットを出力にする
+	**********************************************************/
+	void initLed_P1()
+	{
+		P1.DDR = 0xf;
+	}
+
+	/* ------------------------------------------------- */
+	/* LET LED ON */
+	/* ------------------------------------------------- */
+	/*numberは0または1*/
+	void turnOnLed_P1(short int number)
+	{ 
+		static const unsigned char mask[]={1,2,4,8};
+		P1.DR.BYTE |= mask[number];
+	}
+
+	/* ------------------------------------------------- */
+	/* LET LED OFF */
+	/* ------------------------------------------------- */
+	/*numberは0または1*/
+	void turnOffLed_P1(short int number)
+	{
+		static const unsigned char mask[]={0xfe,0xfd,0xfb,0xf7};
+		P1.DR.BYTE &= mask[number];
+	}
+	main()
+	{
+		initLed_P1();
+		while(1) {
+			turnOnLed_P1(0); /*LED0のON*/
+			turnOffLed_P1(3); /*LED3のOFF*/
+			waitmsec(2000);
+			turnOnLed_P1(1); /*LED1のON*/
+			turnOffLed_P1(0); /*LED0のOFF*/
+			waitmsec(2000);
+			turnOnLed_P1(2); /*LED2のON*/
+			turnOffLed_P1(1); /*LED1のOFF*/
+			waitmsec(2000);
+			turnOnLed_P1(3); /*LED3のON*/
+			turnOffLed_P1(2); /*LED2のOFF*/
+			waitmsec(2000);
+		}
+	}
+
+
+
+
+3．実行結果
+	
+	測定結果を下に示す
+	ただし，ポート番号とピンの割り当ては以下の通りである．
+	また，測定したピンはCN3である．
+	
+	P1-0 : 15 (CN3)
+	P1-1 : 16 (CN3)
+	P1-2 : 17 (CN3)
+	P1-3 : 18 (CN3)
+	
+	ピンの電圧を測定した．
+	
+	P1-0 , P1-1 , P1-2 , P1-3
+	の順で2秒ごとに0Vと5Vが入れ替わった．
+	
+4．考察
+	P1-0 , P1-1 , P1-2 , P1-3
+	の順で2秒ごとに0Vと5Vが入れ替わったことにより，
+	LEDを接続したとき，2秒ごとに0,1,2,3番LEDが順に点灯し消灯することができる．
+	
+5．まとめ
+	今まで使用してきたP5以外のポートで，LEDのプログラムが実行できることを知った．
+	また，initLed()，turnOnLed()，turnOffLed()の内容を理解し，
+	どのような指示を送っているかなどを学び，ポート1に応用することができた．
