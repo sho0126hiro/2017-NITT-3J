@@ -1,0 +1,141 @@
+/***  mp9ex02.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	前課題の２つプッシュスイッチにより起動する独立動作に加え、プッシュスイッチ２によって起動するも
+	う１つの独立動作を行うようにする。
+	シリアル通信とテラタームを用いて次の動作をおこなう。
+	テラタームで電光掲示板のように「Hello, everyone!」を右から左に流れるように表示する。表
+	示中に再度プッシュスイッチが押されたら、表示動作は最初から再表示になる。
+	また、LED0、LED1とこの表示はそれぞれ独立動作である。
+	電光掲示板のように表示させるには次の文字列を0.1秒ごとに表示すればよい。
+	最後まで表示したら、この定型動作は終了である。
+	
+2．使用したプログラム
+
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+	
+	volatile int count1 = -1;/*LED0用カウンタ　-1の時は休止中*/
+	volatile int count2 = -1;/*LED1用カウンタ　-1の時は休止中*/
+	volatile int count3 = -1;/*LED1用カウンタ　-1の時は休止中*/
+	volatile int cmdstertptr = -1;/*文字列表示開始位置指令*/
+	const char hello[] = "                Hello, everyone!                  ";
+
+	main()
+	{
+		int j;
+		initSCI1();
+		initLed();
+		initPushSW();/*PushSWの初期化*/
+		initTimer1Int(10000); /*時間割り込み10000μsec=10msec ch1使用*/
+		E_INT();        /*CPU割り込み許可*/
+		startTimer1();  /*時間割り込みタイマスタートch1*/
+		while (1) {
+			if ((count1 == -1 || 50<count1) && checkPushSW(0) == 1) {
+				count1 = 0;
+				turnOnLed(0);
+			}
+			else if (100 < count1 && count1 <= 200) { /*100カウントで1秒経過*/
+				turnOffLed(0);
+			}
+			else if (200 < count1 && count1 <= 300) { /*200カウントで2秒経過*/
+				turnOnLed(0);
+			}
+			else if (300 < count1) { /*300カウントで3秒経過*/
+				count1 = -1;
+				turnOffLed(0);
+			}
+
+			if ((count2 == -1 || 50<count2) && checkPushSW(1) == 1) {
+				count2 = 0;
+				turnOnLed(1);
+			}
+			else if (100 < count2 && count2 <= 200) { /*100カウントで1秒経過*/
+				turnOffLed(1);
+			}
+			else if (200 < count2 && count2 <= 300) { /*200カウントで2秒経過*/
+				turnOnLed(1);
+			}
+			else if (300 < count2) { /*300カウントで3秒経過*/
+				count2 = -1;
+				turnOffLed(1);
+			}
+
+			if ((count3<0 || 10<count3) && checkPushSW(2) == 1) {
+				count3 = 0;
+				cmdstertptr = 0;
+			}
+			if (0 <= cmdstertptr) {
+				SCI1_printf("<");
+				for (j = 0; j < 16; j++) {
+					SCI1_printf("%c", hello[cmdstertptr + j]);
+				}
+				SCI1_printf(">\r");
+				if (cmdstertptr == 34) {/*34+16で表示おわり*/
+					count3 = -1;
+				}
+				cmdstertptr = -1;
+			}
+		}
+	}
+
+#pragma asm
+	.SECTION    MYVEC, DATA, LOCATE = H'000070
+	.ORG        H'000070  ;IMIA1
+	.DATA.L     _TimerIntFunc
+	.SECTION    P, CODE, ALIGN = 2; これを忘れてはいけない
+#pragma endasm
+
+#pragma interrupt (TimerIntFunc)
+void TimerIntFunc() /*タイマ割り込みルーチン*/
+{
+	static int tick = 0;
+	clearTimer1Flag();  /*タイマステータスフラグのクリア 忘れないこと*/
+	if (count1 != -1) count1++;
+	if (count2 != -1) count2++;
+	if (count3 != -1) count3++;
+	if (count3 % 10 == 0) {
+		cmdstertptr = count3 / 10;/*0.1秒ごとに増える*/
+	}
+}
+
+3．実行結果
+	
+	mp9ex01での独立操作の実行
+		定型動作：
+			 LED0 : プッシュスイッチ0を押した瞬間からLED0は１秒間点灯し、
+					１秒間消灯し、１秒間点灯して動作を終了する。（ON-OFF-ON-OFF）
+			 LED1 : プッシュスイッチ1を押した瞬間からLED1は１秒間点灯し、
+					１秒間消灯し、１秒間点灯して動作を終了する。（ON-OFF-ON-OFF）
+		
+		LED0が定型動作中にプッシュスイッチ0が押されたら、残り定型動作時間には無関係に、
+		その時点から新たに定型動作を開始
+		
+		LED1が定型動作中にプッシュスイッチ1が押されたら、残り定型動作時間には無関係に、
+		その時点から新たに定型動作を開始
+		
+		LED0が定型動作中にプッシュスイッチ1が押されたら、LED0の定型動作には影響を与えず
+		LED1は、定型動作を開始
+		
+		LED1が定型動作中にプッシュスイッチ0が押されたら、LED1の定型動作には影響を与えず
+		LED0 は、定型動作を開始
+		
+	それに加えて，プッシュスイッチ2を押すと
+	Hello, everyone!がテラタームで電子掲示板のように右から左に流れる．
+	再度プッシュスイッチを押されると，最初から再表示になる．
+	
+	これら3つのスイッチの動作はすべて独立して動いた．
+	
+	
+4．考察
+	
+	char hello[]="                Hello, everyone!                ";
+	によって，Helloの前のスペースが35個（'H'= hello[36]）ということがわかる．
+	この数字を利用して，割り込み関数内の操作をしている．
+	前課題と同様に，無限ループの中で判定を待っているため，独立動作が実現できる．
+
+5．まとめ
+	割り込み関数を使用した独立操作についてのプログラムを理解し，
+	mp9ex01を応用したプログラムを作ることができた．
+

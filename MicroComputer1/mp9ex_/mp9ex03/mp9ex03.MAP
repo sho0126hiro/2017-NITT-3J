@@ -1,0 +1,181 @@
+                                        H SERIES LINKAGE EDITOR Ver. 5.3B
+
+
+LINK COMMAND LINE
+
+
+LNK -subcommand=tmp8523.sub 
+
+
+
+LINK SUBCOMMANDS
+
+
+INPUT C:\Progra~1\h8v2\lib\start3048.obj  mp9ex03 
+LIB C:\Progra~1\h8v2\lib\c38ha.lib 
+OUTPUT mp9ex03 
+PRINT mp9ex03 
+ROM (D,X)
+
+;ROMエリア＝00000-1ffff 0x20000:128kbytes
+;RAMエリア＝fef10-fff0f  0x1000:  4kbytes
+START P,C,D(100),X,B(0FFEF10)
+EXIT
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     1
+
+                                        ***     LINKAGE EDITOR LINK MAP LIST      ***
+
+
+SECTION   NAME                       START      -      END         LENGTH
+                                                              UNIT NAME                          MODULE NAME
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+VEC                               H'00000000    -    H'00000003   H'00000004
+                                                              start3048                          start3048                       
+
+* TOTAL ADDRESS *                 H'00000000    -    H'00000003   H'00000004
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+MYVEC                             H'00000070    -    H'00000073   H'00000004
+                                                              mp9ex03                            mp9ex03                         
+
+* TOTAL ADDRESS *                 H'00000070    -    H'00000073   H'00000004
+
+
+ATTRIBUTE  :   CODE  NOSHR
+
+P                                 H'00000100    -    H'0000015F   H'00000060
+                                                              start3048                          start3048                       
+                                  H'00000160    -    H'000010D9   H'00000F7A
+                                                              mp9ex03                            mp9ex03                         
+                                  H'000010DA    -    H'00001115   H'0000003C
+                                                              divul3                             divul3                          
+                                  H'00001116    -    H'00001135   H'00000020
+                                                              mull3                              mull3                           
+                                  H'00001136    -    H'0000115D   H'00000028
+                                                              spregsv3                           spregsv3                        
+                                  H'0000115E    -    H'00001173   H'00000016
+                                                              sprgld23                           sprgld23                        
+
+* TOTAL ADDRESS *                 H'00000100    -    H'00001173   H'00001074
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+C                                 H'00001174    -    H'00001187   H'00000014
+                                                              start3048                          start3048                       
+                                  H'00001188    -    H'0000120D   H'00000086
+                                                              mp9ex03                            mp9ex03                         
+
+* TOTAL ADDRESS *                 H'00001174    -    H'0000120D   H'0000009A
+
+
+ATTRIBUTE  :   DATA  NOSHR ROM
+
+D                                 H'0000120E    -    H'0000120E   H'00000000
+                                                              start3048                          start3048                       
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     2
+
+                                        ***     LINKAGE EDITOR LINK MAP LIST      ***
+
+
+SECTION   NAME                       START      -      END         LENGTH
+                                                              UNIT NAME                          MODULE NAME
+
+
+ATTRIBUTE  :   DATA  NOSHR ROM
+
+D                                 H'0000120E    -    H'00001217   H'0000000A
+                                                              mp9ex03                            mp9ex03                         
+
+* TOTAL ADDRESS *                 H'0000120E    -    H'00001217   H'0000000A
+
+
+ATTRIBUTE  :   DATA  NOSHR RAM
+
+X                                 H'00FFEF10    -    H'00FFEF10   H'00000000
+                                                              start3048                          start3048                       
+                                  H'00FFEF10    -    H'00FFEF19   H'0000000A
+                                                              mp9ex03                            mp9ex03                         
+
+* TOTAL ADDRESS *                 H'00FFEF10    -    H'00FFEF19   H'0000000A
+
+
+ATTRIBUTE  :   DATA  NOSHR
+
+B                                 H'00FFEF1A    -    H'00FFEF1A   H'00000000
+                                                              start3048                          start3048                       
+                                  H'00FFEF1A    -    H'00FFEF1D   H'00000004
+                                                              mp9ex03                            mp9ex03                         
+
+* TOTAL ADDRESS *                 H'00FFEF1A    -    H'00FFEF1D   H'00000004
+
+
+
+                                  H SERIES LINKAGE EDITOR Ver. 5.3B                      PAGE :     1
+
+                                      ***  LINKAGE EDITOR EXTERNALLY DEFINED SYMBOLS LIST  ***
+
+                                 SYMBOL  NAME                         ADDR                 TYPE
+
+                                  $DIVUL$3                             H'000010DA           DAT
+                                  $MULL$3                              H'00001116           DAT
+                                  $sp_regsv$3                          H'00001136           DAT
+                                  $spregld2$3                          H'0000115E           DAT
+                                  _D_INT                               H'0000015C           DAT
+                                  _Device_printf                       H'00000644           DAT
+                                  _E_INT                               H'00000158           DAT
+                                  _LCD_clrscr                          H'000005F8           DAT
+                                  _LCD_gotoxy                          H'000005DC           DAT
+                                  _LCD_printf                          H'00000C6E           DAT
+                                  _LCD_putchar                         H'00000538           DAT
+                                  _LCD_puts                            H'0000055A           DAT
+                                  _LCDdevice                           H'0000118C           DAT
+                                  _SCI0_chkgetChar                     H'000002C4           DAT
+                                  _SCI0_getChar                        H'00000290           DAT
+                                  _SCI0_getInt4                        H'00000470           DAT
+                                  _SCI0_getString                      H'00000300           DAT
+                                  _SCI0_printf                         H'00000BCE           DAT
+                                  _SCI0_putChar                        H'0000049C           DAT
+                                  _SCI0_putString                      H'000004BA           DAT
+                                  _SCI0device                          H'00001188           DAT
+                                  _SCI1_chkgetChar                     H'000001AE           DAT
+                                  _SCI1_getChar                        H'0000017A           DAT
+                                  _SCI1_getInt4                        H'00000444           DAT
+                                  _SCI1_getString                      H'000001EA           DAT
+                                  _SCI1_printf                         H'00000C1E           DAT
+                                  _SCI1_putChar                        H'0000023E           DAT
+                                  _SCI1_putString                      H'0000025C           DAT
+                                  _SCI1device                          H'0000118A           DAT
+                                  _STRdevice                           H'0000118E           DAT
+                                  _TimerIntFunc                        H'00001052           DAT
+                                  _atoi                                H'00000354           DAT
+                                  _check8BitSW                         H'00000D94           DAT
+                                  _checkPushSW                         H'00000D60           DAT
+                                  _cmdstertptr                         H'00FFEF16           DAT
+                                  _count1                              H'00FFEF10           DAT
+                                  _count2                              H'00FFEF12           DAT
+                                  _count3                              H'00FFEF14           DAT
+                                  _hello                               H'000011C5           DAT
+                                  _hexstring                           H'00001190           DAT
+                                  _init8BitSW                          H'00000D8A           DAT
+                                  _initLCD                             H'00000572           DAT
+                                  _initLed                             H'00000D18           DAT
+                                  _initPushSW                          H'00000D56           DAT
+                                  _initSCI0                            H'00000276           DAT
+                                  _initSCI1                            H'00000160           DAT
+                                  _initTimer1Int                       H'00000DBE           DAT
+                                  _main                                H'00000E00           DAT
+                                  _sprintf                             H'00000CBE           DAT
+                                  _turnOffLed                          H'00000D3A           DAT
+                                  _turnOnLed                           H'00000D1E           DAT

@@ -1,0 +1,144 @@
+/***  mp9ex03.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	10の練習問題(2)（mp9ex02.txt）で提出した課題において，電光掲示板表示をLCDに表示するように変更しなさい。
+	必要なら表示速度を遅くしなさい。
+	
+2．使用したプログラム
+
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	volatile int count1=-1;/*LED0用カウンタ　-1の時は休止中*/
+	volatile int count2=-1;/*LED1用カウンタ　-1の時は休止中*/
+	volatile int count3=-1;
+
+	volatile int cmdstertptr=-1;
+
+	const char hello[]="                Hello, everyone!                  ";
+
+	main()
+	{
+		int j;
+		
+		initLCD();
+		initSCI1();
+		initLed();
+		initPushSW();/*PushSWの初期化*/
+		initTimer1Int(10000);/*時間割り込み10000μsec=10msec ch1使用*/
+		E_INT();        /*CPU割り込み許可*/
+		startTimer1();  /*時間割り込みタイマスタートch1*/
+		
+		LCD_gotoxy(0,0);
+		LCD_printf("pushSW status");
+		
+		while(1) {
+			if ((count1==-1 || 50<count1) && checkPushSW(0)==1) {
+				count1=0;
+				turnOnLed(0);
+			} else if (100<count1 && count1<200) { /*200カウントで2秒経過*/
+				turnOffLed(0);
+			} else if (200<count1 && count1<300){
+				turnOnLed(0);
+			} else if (300<count1){
+				count1=-1;
+				turnOffLed(0);
+			}
+			if ((count2==-1 || 50<count2) && checkPushSW(1)==1) {
+				count2=0;
+				turnOnLed(1);
+			} else if (100<count2 && count2<200) { /*200カウントで2秒経過*/
+				turnOffLed(1);
+			} else if (200<count2 && count2<300){
+				turnOnLed(1);
+			} else if (300<count2){
+				count2=-1;
+				turnOffLed(1);
+			}
+			
+			if ( (count3<0 || 10<count3) &&checkPushSW(2)==1) {
+				count3 = 0;
+				cmdstertptr = 0;
+			}
+			if(0<=cmdstertptr) {
+				LCD_gotoxy(0,1);
+				LCD_printf("<");
+				for(j = 0; j < 14; j++) {
+					LCD_printf("%c", hello[cmdstertptr+j]);
+				}
+				LCD_printf(">\r");
+				if (cmdstertptr==34) {
+					count3=-1;
+				}
+				cmdstertptr=-1;
+			}
+		}
+	}
+
+	#pragma asm
+		.SECTION    MYVEC, DATA, LOCATE=H'000070
+		.ORG        H'000070  ;IMIA1
+		.DATA.L     _TimerIntFunc
+		.SECTION    P,CODE,ALIGN=2 ;これを忘れてはいけない
+	#pragma endasm
+
+	#pragma interrupt (TimerIntFunc)
+	void TimerIntFunc() /*タイマ割り込みルーチン*/
+	{
+		static int tick=0;
+		clearTimer1Flag();  /*タイマステータスフラグのクリア 忘れないこと*/
+		if (count1!=-1) count1++;
+		if (count2!=-1) count2++;
+		if (count3!=-1) count3++;
+		if (count3%25==0) {/*0.25*/
+			cmdstertptr=count3/25;
+		}
+	}
+
+3．実行結果
+	
+	LCDにpushSW statusとの表示
+	
+	mp9ex01での独立操作の実行
+		定型動作：
+			 LED0 : プッシュスイッチ0を押した瞬間からLED0は１秒間点灯し、
+					１秒間消灯し、１秒間点灯して動作を終了する。（ON-OFF-ON-OFF）
+			 LED1 : プッシュスイッチ1を押した瞬間からLED1は１秒間点灯し、
+					１秒間消灯し、１秒間点灯して動作を終了する。（ON-OFF-ON-OFF）
+		
+		LED0が定型動作中にプッシュスイッチ0が押されたら、残り定型動作時間には無関係に、
+		その時点から新たに定型動作を開始
+		
+		LED1が定型動作中にプッシュスイッチ1が押されたら、残り定型動作時間には無関係に、
+		その時点から新たに定型動作を開始
+		
+		LED0が定型動作中にプッシュスイッチ1が押されたら、LED0の定型動作には影響を与えず
+		LED1は、定型動作を開始
+		
+		LED1が定型動作中にプッシュスイッチ0が押されたら、LED1の定型動作には影響を与えず
+		LED0 は、定型動作を開始
+		
+	それに加えて，プッシュスイッチ2を押すと
+	Hello, everyone!がLCDで電子掲示板のように右から左に流れる．
+	再度プッシュスイッチを押されると，最初から再表示になる．
+	
+	これら3つのスイッチの動作はすべて独立して動いた．
+	
+	
+4．考察
+	
+	前課題と同じプログラムで，テラタームの表示部をLCDへの出力に変化しただけだと，
+	LCDでeveryone が eveeeeeneに見えるなど，LCDの表示の変化スピードが早く，見えにくかった．
+	そこで，タイマー割り込み関数の中の
+	if (count3%10==0) /*0.1*/
+		cmdstertptr=count3/10;
+	の値を
+	if (count3%25==0) /*0.25*/
+		cmdstertptr=count3/25;
+	に変更することで，変化の周期を0.1secから0.25secに変更し，LCDの表示を見やすくした．
+
+5．まとめ
+	割り込み関数を使用した独立操作についてのプログラムを理解し，
+	mp9ex02を応用したプログラムを作ることができた．
+

@@ -1,0 +1,105 @@
+/***  mp8ex02.txt  ***/
+/***  s16306  3J43  廣瀬 翔  ***/
+
+1．課題
+	シリアル通信速度は"h8_3048fone.hの中の関数 initSCI1で設定されている。
+	この関数の中では通信速度が38400bit/secになるよう設定されている。
+	（テラタームも38400bit/secに設定されているので通信ができている。）
+	
+	このプログラムを改造し通信速度を 1200bit/secに設定し，通信を検証しなさい。
+	ハードウェアマニュアルを読まないとできません。
+		
+2．使用したプログラム
+
+	/**********************************************************
+	SCI1へ出力，WINDOWSのHyperTerminalなどで受信できる。
+	Async, 8bit , NoParity, stop1 通信速度を変更する例
+	　38400　または　19200　bit/sec
+	**********************************************************/
+	#include <3048fone.h>
+	#include "h8_3048fone.h"
+
+	 /*SCI-ch1の初期化 38400bit/sec*/
+	void myinitSCI1_38400()
+	{
+	    short int i;
+	    SCI1.SCR.BYTE = 0;       /* clear all flags */
+	                      /* 2400-38400baud are available at n=0(cks1=0,cks2=0) */
+	    SCI1.SMR.BYTE = 0;       /* Async, 8bit , NoParity, stop1, 1/1 */
+	    SCI1.BRR = 19;          /* 38400baud (CPU=25MHz) */
+	    for(i=0;i<1000;i++);      /* wait more than 1bit time */
+	    SCI1.SCR.BYTE = 0x30;    /* scr = 0011 0000 (TE=1,RE=1) */
+	    return;
+	}
+
+	 /*SCI-ch1の初期化 19200bit/sec*/
+	void myinitSCI1_19200()
+	{
+	    short int i;
+	    SCI1.SCR.BYTE = 0;       /* clear all flags */
+	                      /* 2400-38400baud are available at n=0(cks1=0,cks2=0) */
+	    SCI1.SMR.BYTE = 0;       /* Async, 8bit , NoParity, stop1, 1/1 */
+	    SCI1.BRR = 40;             /* 19200baud (CPU=25MHz) */
+	    for(i=0;i<1000;i++);      /* wait more than 1bit time */
+	    SCI1.SCR.BYTE = 0x30;    /* scr = 0011 0000 (TE=1,RE=1) */
+	    return;
+	}
+
+	/*[課題]SCI-ch1の初期化 1200bit/sec*/
+	void myinitSCI1_1200()
+	{
+	    short int i;
+	    SCI1.SCR.BYTE = 0;       /* clear all flags */
+	                      /* 1200baud are available at n=1(cks1=1,cks2=1) */
+	    SCI1.SMR.BYTE = 1;       /* Async, 8bit , NoParity, stop1, 1/1 */
+	    SCI1.BRR = 162;             /* 1200baud (CPU=25MHz) */
+	    for(i=0;i<1000;i++);      /* wait more than 1bit time */
+	    SCI1.SCR.BYTE = 0x30;    /* scr = 0011 0000 (TE=1,RE=1) */
+	    return;
+	}
+
+
+	main()
+	{
+	    int count=0;
+	    myinitSCI1_38400();
+	    /*myinitSCI1_19200();*/
+	    /*myinitSCI1_1200();*/
+	    while (1) {
+	        SCI1_printf("Hello %6d\n",count++);
+	    }
+	}
+
+3．実行結果
+	
+	テラターム側の通信速度を1200に設定し，myinitSCI1_1200();の後に実行する．
+	Hello+数字が表示される．
+	テラターム側の通信速度を38400に設定し，myinitSCI1_38400();の後に実行したところ
+	前者より後者のほうが，はるかに速い速度で表示されているのが確認できた．
+	
+	
+4．考察
+	
+	ハードウェアマニュアルあるには，ビットレートに対する
+	・BRRの値
+	・SMR-CKS1,CKS0の値
+	が書かれており，それらを利用し，初期化をする．
+	BRRの値はクロックの周期によって変わる．
+		32分周クロックφ：n=0
+		128分周クロックφ/4：n=1
+		512分周クロックφ/16：n=2
+		2048分周クロックφ/64：n=3
+	SMR-CKS1,CKS0の値は，以下の計算によって求められる
+	
+	N=p/T
+	
+	で求められる．
+		N:SMR-CKS1,CKS0の値+1（CPUの内部カウンタは0から数えるため）
+		p:1bitに要する時間
+		T:クロック信号の周期
+	
+5．まとめ
+	シリアル通信速度のについての仕組みを理解した．
+	また，通信速度を変化させて実行することによって，通信速度の差を実感できた．
+
+	
