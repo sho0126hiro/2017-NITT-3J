@@ -1,3 +1,3 @@
-*Practice Programming1*
-the latter term
-(2017.10-2018.3)
+# PracticeProgramming1
+the first term
+(2017.4-2017.9)
